@@ -33,6 +33,10 @@ def register_account(data):
     if User.query.filter_by(email=data["email"]).first():
         return {"error": f"{data['role'].capitalize()} with this email already exists"}, 409
 
+    # Check if username already exists
+    if User.query.filter_by(username=data["username"]).first():
+        return {"error": f"Username '{data['username']}' is already taken"}, 409
+
     # Map role string to Role enum
     role_map = {"user": Role.USER, "manager": Role.MANAGER, "admin": Role.ADMIN}
     role_enum = role_map.get(data["role"].lower())
