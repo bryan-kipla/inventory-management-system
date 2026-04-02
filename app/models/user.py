@@ -1,6 +1,4 @@
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()  # Initialize SQLAlchemy instance
+from app.database import db  # Import the shared db instance
 
 class Role:
     MANAGER = "manager"  # Role constant for managers
@@ -14,4 +12,3 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)    # Unique email
     password = db.Column(db.String(200), nullable=False)              # Plain text password
     role = db.Column(db.String(20), nullable=False, default=Role.USER) # User role
-
