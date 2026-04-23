@@ -1,0 +1,59 @@
+REGISTER
+{
+  "username": "bryan",
+  "email": "bryan@kipla.com",
+  "password": "bryankip",
+  "role": "User"
+}
+
+login
+{
+  "username": "bryan",
+  "password": "bryankip"
+}
+
+product
+{
+  "name": "Laptop",
+  "category_id": 1,
+  "price": 50000
+}
+
+
+
+inventory
+{
+  "product": "Laptop",
+  "quantity": 10
+}
+
+supplier
+{
+  "name": "TechSupplier",
+  "contact_email": "info@tech.com",
+  "contact_phone": "0712345678"
+}
+
+transaction
+{
+  "product": "Laptop",
+  "quantity": 2,
+  "transaction_type": "sale"
+}
+
+cartegory
+{
+  "name": "Electronics"
+}
+
+role
+{
+  "name": "User"
+}
+
+soft delete
+{
+  "msg": "User soft deleted",
+  "deleted_at": "2026-04-23T19:20:00Z"
+}
+

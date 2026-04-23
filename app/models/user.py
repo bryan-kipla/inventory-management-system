@@ -1,13 +1,9 @@
-# Role constants
-class Role:
-    ADMIN = "admin"
-    MANAGER = "manager"
-    USER = "user"
+from app.extensions import db
 
-# Plain User class (no SQLAlchemy)
-class User:
-    def __init__(self, username, email, password, role=Role.USER):
-        self.username = username
-        self.email = email
-        self.password = password
-        self.role = role
+class User(db.Model):
+    __tablename__ = "users"
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(120), nullable=False)  # plain text for demo
+    role_id = db.Column(db.Integer, db.ForeignKey("roles.id"))

@@ -1,62 +1,28 @@
+from app.extensions import db
+from app.models.user import User, Role
+from app.utils.responses import success_response, error_response
 
-users = []
-roles = ["user", "manager", "admin"]
-
-# Validation Layer
-def validate_payload(data, required_fields):
-    errors = []
-    for field in required_fields:
-        if not data.get(field):
-            errors.append(f"{field} is required")
-
-    if "password" in required_fields and data.get("password") and len(data["password"]) < 6:
-        errors.append("Password must be at least 6 characters long")
-
-    if "role" in required_fields:
-        role_value = data.get("role")
-        if not role_value:
-            errors.append("Role is required")
-        elif role_value.lower() not in roles:
-            errors.append("Role must be either 'user', 'manager', or 'admin'")
-
-    return errors
-
-
-# Registration
 def register_account(data):
-    errors = validate_payload(data, ["username", "email", "password", "role"])
-    if errors:
-        return {"error": errors}, 400
+    if not all([data.get("username"), data.get("email"), data.get("password"), data.get("role")]):
+        return error_response("All fields are required", 400)
 
-    # Check duplicates
-    for user in users:
-        if user["email"] == data["email"]:
-            return {"error": f"{data['role'].capitalize()} with this email already exists"}, 409
-        if user["username"] == data["username"]:
-            return {"error": f"Username '{data['username']}' is already taken"}, 409
+    if User.query.filter_by(email=data["email"]).first():
+        return error_response("Email already exists", 409)
 
-    # Save user in memory
-    new_user = {
-        "username": data["username"],
-        "email": data["email"],
-        "password": data["password"],  # plain text for demo
-        "role": data["role"].lower()
-    }
-    users.append(new_user)
-    return {"message": f"{data['role'].capitalize()} registered successfully"}, 201
+    if User.query.filter_by(username=data["username"]).first():
+        return error_response("Username already exists", 409)
 
+    role = Role.query.filter_by(name=data["role"]).first()
+    if not role:
+        return error_response("Invalid role", 400)
 
-# Login
+    user = User(username=data["username"], email=data["email"], password=data["password"], role=role)
+    db.session.add(user)
+    db.session.commit()
+    return success_response("User registered successfully", {"username": user.username}, 201)
+
 def login_account(data):
-    errors = validate_payload(data, ["username", "password", "role"])
-    if errors:
-        return {"error": errors}, 400
-
-    for user in users:
-        if (user["username"] == data["username"] and
-            user["password"] == data["password"] and
-            user["role"] == data["role"].lower()):
-            return {"message": f"{data['role'].capitalize()} login successful",
-                    "role": user["role"], "email": user["email"]}, 200
-
-    return {"error": f"Invalid {data['role']} credentials"}, 401
+    user = User.query.filter_by(username=data.get("username")).first()
+    if user and user.password == data.get("password"):
+        return success_response("Login successful", {"username": user.username, "role": user.role.name}, 200)
+    return error_response("Invalid credentials", 401)
